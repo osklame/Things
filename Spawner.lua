@@ -56,7 +56,7 @@ local SpawnerLibrary = {
 
 		for _,Room in ipairs(workspace.CurrentRooms:GetChildren()) do
 			t += 1
-			if Room:FindFirstChild("RoomStart") and tonumber(Room.Name) == game.ReplicatedStorage.GameData.LatestRoom.Value then
+			if Room:FindFirstChild("RoomEntrance") and tonumber(Room.Name) == game.ReplicatedStorage.GameData.LatestRoom.Value then
 				Earliest = tonumber(Room.Name)
 				break;
 			end
@@ -69,7 +69,7 @@ local SpawnerLibrary = {
 		local Latest = game.ReplicatedStorage.GameData.LatestRoom.Value
 
 		for _,Room in ipairs(workspace.CurrentRooms:GetChildren()) do
-			if Room:FindFirstChild("RoomStart") then
+			if Room:FindFirstChild("RoomEntrance") then
 				Earliest = tonumber(Room.Name)
 				break;
 			end
@@ -314,10 +314,10 @@ local Entities = {
 				for i,v in ipairs(workspace.CurrentRooms:GetChildren()) do
 					if tonumber(v.Name) < tonumber(early.Name) then continue end
 					if v:GetAttribute("lol") then continue end
-					if v:FindFirstChild("Nodes") then
+					if v:FindFirstChild("PathfindingNodes") then
 						v:SetAttribute("lol", true)
 						require(game:GetService("ReplicatedStorage").ClientModules.EntityModules.Seek).tease(nil, v, 14, 1665596753, true)
-						for i,v in ipairs(v.Nodes:GetChildren()) do
+						for i,v in ipairs(v.PathfindingNodes:GetChildren()) do
 							SpawnerLibrary.Tween(val, v, 25, CFrame.new(0,5,0))
 						end
 					end
@@ -399,7 +399,7 @@ local Entities = {
 				local Last = workspace.CurrentRooms:FindFirstChild(tonumber(Room.Name) - 1)
 				
 				if Last then
-					if Last:FindFirstChild("Nodes") then
+					if Last:FindFirstChild("PathfindingNodes") then
 						if Last:GetAttribute("Done") == true then
 							IsPossible = false
 						end
@@ -415,7 +415,7 @@ local Entities = {
 
 				if Next then
 					if tonumber(Room.Name) == tonumber(game.ReplicatedStorage.GameData.LatestRoom.Value) then
-						if Room:FindFirstChild("Door") and Room:FindFirstChild("Nodes") then
+						if Room:FindFirstChild("Door") and Room:FindFirstChild("PathfindingNodes") then
 							if Room.Door.Door.Anchored then
 								Next:SetAttribute("Possible", false)
 							end
@@ -423,12 +423,12 @@ local Entities = {
 					end
 				end
 				
-				if Room:FindFirstChild("Nodes") and IsPossible then
+				if Room:FindFirstChild("PathfindingNodes") and IsPossible then
 					Event("breakLights", Room, 0.416, 60)
-					for i,v in pairs(Room.Nodes:GetChildren()) do
+					for i,v in pairs(Room.PathfindingNodes:GetChildren()) do
 						SpawnerLibrary.Tween2(RushNew, v, RushSpeed, CFrame.new(0,4,0))
 					end
-					SpawnerLibrary.Tween2(RushNew, Room.RoomEnd, RushSpeed)
+					SpawnerLibrary.Tween2(RushNew, Room.RoomExit, RushSpeed)
 				end
 			end
 
@@ -519,7 +519,7 @@ local Entities = {
 
 					if Next then
 						if tonumber(Room.Name) == tonumber(game.ReplicatedStorage.GameData.LatestRoom.Value) then
-							if Room:FindFirstChild("Door") and Room:FindFirstChild("Nodes") then
+							if Room:FindFirstChild("Door") and Room:FindFirstChild("PathfindingNodes") then
 								if Room.Door.Door.Anchored then
 									Next:SetAttribute("Possible", false)
 								end
@@ -527,17 +527,17 @@ local Entities = {
 						end
 					end
 
-					if Room:FindFirstChild("Nodes") and IsPossible then
+					if Room:FindFirstChild("PathfindingNodes") and IsPossible then
 						Event("breakLights", Room, 0.416, 60)
-						for i,v in pairs(Room.Nodes:GetChildren()) do
-							table.insert(Nodes, 1, v)
+						for i,v in pairs(Room.PathfindingNodes:GetChildren()) do
+							table.insert(PathfindingNodes, 1, v)
 							SpawnerLibrary.Tween2(RushNew, v, AmbushSpeed, CFrame.new(0,4,0))
 						end
-						SpawnerLibrary.Tween2(RushNew, Room.RoomEnd, AmbushSpeed)
+						SpawnerLibrary.Tween2(RushNew, Room.RoomExit, AmbushSpeed)
 					end
 				end
 				
-				for i,v in ipairs(Nodes) do
+				for i,v in ipairs(PathfindingNodes) do
 					SpawnerLibrary.Tween2(RushNew, v, AmbushSpeed, CFrame.new(0,4,0))
 				end
 				
@@ -623,7 +623,7 @@ local Entities = {
 
 					if Next then
 						if tonumber(Room.Name) == tonumber(game.ReplicatedStorage.GameData.LatestRoom.Value) then
-							if Room:FindFirstChild("Door") and Room:FindFirstChild("Nodes") then
+							if Room:FindFirstChild("Door") and Room:FindFirstChild("PathfindingNodes") then
 								if Room.Door.Door.Anchored then
 									Next:SetAttribute("Possible", false)
 								end
@@ -631,13 +631,13 @@ local Entities = {
 						end
 					end
 
-					if Room:FindFirstChild("Nodes") and IsPossible then
+					if Room:FindFirstChild("PathfindingNodes") and IsPossible then
 						Event("breakLights", Room, 0.416, 60)
-						for i,v in pairs(Room.Nodes:GetChildren()) do
-							table.insert(Nodes, 1, v)
+						for i,v in pairs(Room.PathfindingNodes:GetChildren()) do
+							table.insert(PathfindingNodes, 1, v)
 							SpawnerLibrary.Tween2(RushNew, v, AmbushSpeed, CFrame.new(0,4,0))
 						end
-						SpawnerLibrary.Tween2(RushNew, Room.RoomEnd, AmbushSpeed)
+						SpawnerLibrary.Tween2(RushNew, Room.RoomExit, AmbushSpeed)
 					end
 				end
 				
@@ -684,13 +684,14 @@ local Entities = {
 			local Jack = Instance.new("Part", workspace)
 			Jack.Name = "MobbleHallway"
 
-			Jack.CFrame = Room.RoomStart.CFrame * CFrame.new(Vector3.new(0,0,-5))
+			Jack.CFrame = Room.RoomEntrance.CFrame * CFrame.new(Vector3.new(0,0,-5))
 			Jack.Orientation = Jack.Orientation + Vector3.new(0,180,0)
 			Jack.Anchored = true
 			Jack.CanCollide = false
 			Jack.Transparency = 1
 
-			Event("flickerLights", game.ReplicatedStorage.GameData.LatestRoom.Value, .6) 
+			Event("flickerLights", game.ReplicatedStorage.GameData.L
+				atestRoom.Value, .6) 
 
 			local Beam = Instance.new("Beam", Jack)
 			Beam.Brightness = 1.295
